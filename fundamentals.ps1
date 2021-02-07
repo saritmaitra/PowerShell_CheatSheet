@@ -294,7 +294,7 @@ Write-Host "this is a test" | Receive-Output
 Write-Output "this is a test"
 
 #' vs "
-$name = "John"
+$name = "Sarit"
 Write-Output "Hello $name"
 Write-Output 'Hello $name'
 $query = "SELECT * FROM OS WHERE Name LIKE '%SERVER%'"
@@ -417,7 +417,7 @@ $funcvar
 $funcglobal #this should be visible
 
 #Variables with Invoke-Command
-$message = "Message to John"
+$message = "Message to Sarit"
 Invoke-Command -ComputerName savazuusscdc01 -ScriptBlock {Write-Host $message}
 
 $ScriptBlockContent = {
