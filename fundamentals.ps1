@@ -41,10 +41,10 @@ Get-Command –Noun <noun>
 Update-Help
 
 #Hello World
-Write-Output "Hello World"
+Write-Output "Hello beautiful people"
 
 #Hello Universe
-Write-Output "Hello Universe"
+Write-Output "Wolf of wall street"
 
 #Use a variable
 $name = "Sarit"
@@ -164,20 +164,20 @@ $resources.ResourceTypes.Where{($_.ResourceTypeName -eq 'virtualMachines')}.Loca
 #enabling WinRM and PS Remoting
 Enable-PSRemoting
 
-Invoke-Command -ComputerName savazuusscdc01 {$env:computername}
-Invoke-Command -ComputerName savazuusscds01 {$var=10}
-Invoke-Command -ComputerName savazuusscds01 {$var}
+Invoke-Command -ComputerName comp01 {$env:computername}
+Invoke-Command -ComputerName comp01 {$var=10}
+Invoke-Command -ComputerName comp01 {$var}
 
 #Filter on remote and perform actions or strange results
-Invoke-Command -ComputerName savazuusscdc01 -ScriptBlock {get-eventlog -logname security} | select-object -First 10
-Invoke-command -computername savazuusscdc01 -scriptblock {get-eventlog -logname security | select-object -first 10}
-Invoke-command -computername savazuusscdc01 -scriptblock {get-eventlog -logname security -newest 10}
+Invoke-Command -ComputerName comp01 -ScriptBlock {get-eventlog -logname security} | select-object -First 10
+Invoke-command -computername comp01 -scriptblock {get-eventlog -logname security | select-object -first 10}
+Invoke-command -computername comp01 -scriptblock {get-eventlog -logname security -newest 10}
 
-Invoke-Command -ComputerName savazuusscdc01 -ScriptBlock {get-process} | where {$_.name -eq "notepad"} | Stop-Process
-Invoke-Command -ComputerName savazuusscdc01 -ScriptBlock {get-process | where {$_.name -eq "notepad"} | Stop-Process }
+Invoke-Command -ComputerName comp01 -ScriptBlock {get-process} | where {$_.name -eq "notepad"} | Stop-Process
+Invoke-Command -ComputerName comp01 -ScriptBlock {get-process | where {$_.name -eq "notepad"} | Stop-Process }
 
-Measure-Command {Invoke-Command -ComputerName savazuusscdc01 -ScriptBlock {get-process} | where {$_.name -eq "notepad"} }
-Measure-Command {Invoke-Command -ComputerName savazuusscdc01 -ScriptBlock {get-process | where {$_.name -eq "notepad"}} }
+Measure-Command {Invoke-Command -ComputerName comp01 -ScriptBlock {get-process} | where {$_.name -eq "notepad"} }
+Measure-Command {Invoke-Command -ComputerName comp01 -ScriptBlock {get-process | where {$_.name -eq "notepad"}} }
 
 
 #Sessions
@@ -189,7 +189,7 @@ Get-PSSession
 $session | Remove-PSSession
 
 #Multiple machines
-$dcs = "savazuusedc01", "savazuusscdc01"
+$dcs = "comp01", "comp02"
 Invoke-Command -ComputerName $dcs -ScriptBlock {$env:computername}
 $sess = New-PSSession -ComputerName $dcs
 $sess
@@ -239,7 +239,7 @@ Register-PSSessionConfiguration -Name "DCMs" -Path C:\dcmonly.pssc -StartupScrip
 $pssc = Get-PSSessionConfiguration -Name "DCMs"
 $psscSd = New-Object System.Security.AccessControl.CommonSecurityDescriptor($false, $false, $pssc.SecurityDescriptorSddl)
 
-$Principal = "savilltech\DCMs"
+$Principal = "sarit\DCMs"
 $account = New-Object System.Security.Principal.NTAccount($Principal)
 $accessType = "Allow"
 $accessMask = 268435456
@@ -263,17 +263,17 @@ New-NetFirewallRule -DisplayName "Windows Remote Management (HTTPS-In)" -Name "W
 winrm enumerate winrm/config/Listener
 
 #Connect using SSL
-Invoke-Command savazuusscdc01.savilltech.net -ScriptBlock {$env:computername} -UseSSL
+Invoke-Command comp01.xxxx.net -ScriptBlock {$env:computername} -UseSSL
 #Short name will fail as using cert can override
 $option = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
-Enter-PSSession -ComputerName savazuusscdc01 -SessionOption $option -useSSL
+Enter-PSSession -ComputerName comp01 -SessionOption $option -useSSL
 
 #Connection via SSH  hostname instead of computername
-Invoke-Command -HostName savazuussclnx01 -ScriptBlock {get-process} -UserName john
+Invoke-Command -HostName compx01 -ScriptBlock {get-process} -UserName sarit
 
 #Mix of WinRM and SSH
-New-PSSession -ComputerName savazuusscds01  #winrm
-New-PSSession -HostName savazuussclnx01 -UserName john
+New-PSSession -ComputerName comp01  #winrm
+New-PSSession -HostName compnx01 -UserName sarit
 Get-PSSession -OutVariable sess
 $sess
 invoke-command $sess {get-process *s}
@@ -339,28 +339,28 @@ $securepassword = ConvertTo-SecureString "<the huge value from previous command>
 
 #Another file
 $credpath = "c:\temp\MyCredential.xml"
-New-Object System.Management.Automation.PSCredential("john@savilltech.com", (ConvertTo-SecureString -AsPlainText -Force "Password123")) | Export-CliXml $credpath
+New-Object System.Management.Automation.PSCredential("sarit.maitra@alemark.com", (ConvertTo-SecureString -AsPlainText -Force "Password123")) | Export-CliXml $credpath
 $cred = import-clixml -path $credpath
 
 #Using Key Vault
-Select-AzSubscription -Subscription (Get-AzSubscription | where Name -EQ "SavillTech Dev Subscription")
+Select-AzSubscription -Subscription (Get-AzSubscription | where Name -EQ "Microsoft Partner Network")
 $cred = Get-Credential
 
 #Store username and password in keyvault
-Set-AzKeyVaultSecret -VaultName 'SavillVault' -Name 'SamplePassword' -SecretValue $cred.Password
+Set-AzKeyVaultSecret -VaultName 'SMVault' -Name 'SamplePassword' -SecretValue $cred.Password
 $secretuser = ConvertTo-SecureString $cred.UserName -AsPlainText -Force #have to make a secure string
-Set-AzKeyVaultSecret -VaultName 'SavillVault' -Name 'SampleUser' -SecretValue $secretuser
+Set-AzKeyVaultSecret -VaultName 'SMVault' -Name 'SampleUser' -SecretValue $secretuser
 
 #Getting back
-$username = (get-azkeyvaultsecret -vaultName 'SavillVault' -Name 'SampleUser').SecretValueText
-$password = (get-azkeyvaultsecret -vaultName 'SavillVault' -Name 'SamplePassword').SecretValue
-(get-azkeyvaultsecret -vaultName 'SavillVault' -Name 'SamplePassword').SecretValueText #Can get the plain text via key vault
+$username = (get-azkeyvaultsecret -vaultName 'SMVault' -Name 'SampleUser').SecretValueText
+$password = (get-azkeyvaultsecret -vaultName 'SMVault' -Name 'SamplePassword').SecretValue
+(get-azkeyvaultsecret -vaultName 'SMVault' -Name 'SamplePassword').SecretValueText #Can get the plain text via key vault
 [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($password)) #Inspect if want to double check
 
 #Recreate
 $newcred = New-Object System.Management.Automation.PSCredential ($username, $password)
 #Test
-invoke-command -ComputerName savazuusscdc01 -Credential $newcred -ScriptBlock {whoami}
+invoke-command -ComputerName comp01 -Credential $newcred -ScriptBlock {whoami}
 
 #Var types
 $number=42
@@ -380,9 +380,9 @@ $newchar.GetType()
 $number = [int]42
 $number.ToString() | gm
 
-$string1 = "the quick brown fox jumped over the lazy dog"
+$string1 = "rain drops are falling on my hat"
 $string1 -like "*fox*"
-$string2 = $string1 + " who was not amused"
+$string2 = $string1 + " beautiful day"
 
 
 #Time
@@ -431,7 +431,7 @@ Invoke-Command -ComputerName savazuusscdc01 -ScriptBlock {Write-Host $using:mess
 
 
 #Hash Tables
-$favthings = @{"Julie"="Sushi";"Ben"="Trains";"Abby"="Princess";"Kevin"="Minecraft"}
+$favthings = @{"Julia"="Sushi";"Ben"="Trains";"Abby"="Princess";"Kevin"="Minecraft"}
 $favthings.Add("John","Crab Cakes")
 $favthings.Set_Item("John","Steak")
 $favthings.Get_Item("Abby")
@@ -466,7 +466,7 @@ ForEach ($num in (1..100)) {
 'Z'..'A'
 
 #Accessing property values
-$samacctname = "John"
+$samacctname = "Sarit"
 Get-ADUser $samacctname  -Properties mail
 Get-ADUser $samacctname  -Properties mail | select-object mail
 Get-ADUser $samacctname  -Properties mail | select-object mail | get-member
@@ -507,7 +507,7 @@ MyWorkflow
 #Long workflow
 Workflow LongWorkflow
 {
-Write-Output -InputObject "Loading some information..."
+Write-Output -InputObject "Information loading..."
   Start-Sleep -Seconds 10
   CheckPoint-Workflow
   Write-Output -InputObject "Performing process list..."
